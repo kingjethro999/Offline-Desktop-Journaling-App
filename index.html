@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline Journal</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Left sidebar for dates -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>Journal</h2>
+        <button id="new-entry-btn">New</button>
+      </div>
+      
+      <div class="network-status">
+        <div id="status-indicator" class="status-dot"></div>
+        <span id="status-text">Checking connection...</span>
+      </div>
+      
+      <div class="date-list" id="date-list">
+        <!-- Date entries will be dynamically added here -->
+        <div class="no-entries-message">No entries yet. Start writing!</div>
+      </div>
+    </div>
+    
+    <!-- Right panel for journal entry -->
+    <div class="main-content">
+      <div class="journal-header">
+        <h1 id="current-date">Select or create an entry</h1>
+        <div class="save-status" id="save-status"></div>
+      </div>
+      
+      <div class="editor-container">
+        <div class="editor-message" id="editor-message">
+          Please turn off your WiFi to start writing.
+        </div>
+        <textarea id="journal-content" placeholder="Your thoughts..." disabled></textarea>
+      </div>
+    </div>
+  </div>
+  
+  <script src="renderer.js"></script>
+</body>
+</html>
+
