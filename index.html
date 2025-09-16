@@ -11,13 +11,35 @@
     <!-- Left sidebar for dates -->
     <div class="sidebar">
       <div class="sidebar-header">
-        <h2>Journal</h2>
-        <button id="new-entry-btn">New</button>
+        <div class="journal-selector">
+          <select id="journal-selector">
+            <option value="main">Main Journal</option>
+          </select>
+          <button id="manage-journals-btn" title="Manage Journals">📚</button>
+        </div>
+        <div class="header-buttons">
+          <button id="settings-btn" title="Settings">
+            <img src="icons/gear-outline.svg" alt="Settings" class="icon">
+          </button>
+          <button id="theme-toggle-btn" title="Toggle theme">
+            <img src="icons/moon-outline.svg" alt="Toggle theme" class="icon">
+          </button>
+          <button id="quick-note-btn" title="Quick Note">⚡</button>
+          <button id="new-entry-btn">New</button>
+        </div>
       </div>
       
       <div class="network-status">
         <div id="status-indicator" class="status-dot"></div>
         <span id="status-text">Checking connection...</span>
+      </div>
+      
+      <!-- Search Bar -->
+      <div class="search-container">
+        <input type="text" id="search-input" placeholder="Search entries..." />
+        <button id="clear-search-btn" title="Clear search">
+          <img src="icons/close-circle-outline.svg" alt="Clear search" class="icon">
+        </button>
       </div>
       
       <div class="date-list" id="date-list">
@@ -29,15 +51,321 @@
     <!-- Right panel for journal entry -->
     <div class="main-content">
       <div class="journal-header">
-        <h1 id="current-date">Select or create an entry</h1>
-        <div class="save-status" id="save-status"></div>
+        <div class="header-left">
+          <h1 id="current-date">Select or create an entry</h1>
+          <div class="mood-tracker" id="mood-tracker" style="display: none;">
+            <span class="mood-label">Mood:</span>
+            <div class="mood-options">
+              <button class="mood-btn" data-mood="1" title="Very Low">😢</button>
+              <button class="mood-btn" data-mood="2" title="Low">😔</button>
+              <button class="mood-btn" data-mood="3" title="Neutral">😐</button>
+              <button class="mood-btn" data-mood="4" title="Good">😊</button>
+              <button class="mood-btn" data-mood="5" title="Great">😄</button>
+            </div>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="writing-streak" id="writing-streak">
+            <span class="streak-icon">🔥</span>
+            <span class="streak-text">0 day streak</span>
+          </div>
+          <div class="save-status" id="save-status"></div>
+        </div>
       </div>
       
       <div class="editor-container">
         <div class="editor-message" id="editor-message">
           Please turn off your WiFi to start writing.
         </div>
-        <textarea id="journal-content" placeholder="Your thoughts..." disabled></textarea>
+        
+        <!-- Rich Text Toolbar -->
+        <div class="toolbar" id="toolbar" style="display: none;">
+          <button type="button" class="toolbar-btn" data-command="bold" title="Bold">
+            <strong>B</strong>
+          </button>
+          <button type="button" class="toolbar-btn" data-command="italic" title="Italic">
+            <em>I</em>
+          </button>
+          <button type="button" class="toolbar-btn" data-command="underline" title="Underline">
+            <u>U</u>
+          </button>
+          <div class="toolbar-separator"></div>
+          <button type="button" class="toolbar-btn" data-command="insertUnorderedList" title="Bullet List">
+            • List
+          </button>
+          <button type="button" class="toolbar-btn" data-command="insertOrderedList" title="Numbered List">
+            1. List
+          </button>
+          <div class="toolbar-separator"></div>
+          <select class="toolbar-select" id="heading-select">
+            <option value="">Normal</option>
+            <option value="h1">Heading 1</option>
+            <option value="h2">Heading 2</option>
+            <option value="h3">Heading 3</option>
+          </select>
+          <div class="toolbar-separator"></div>
+          <button type="button" class="toolbar-btn" id="templates-btn" title="Entry Templates">
+            <img src="icons/information-outline.svg" alt="Templates" class="icon">
+            Templates
+          </button>
+          <button type="button" class="toolbar-btn" id="lock-entry-btn" title="Lock/Unlock Entry">
+            <img src="icons/lock.svg" alt="Lock Entry" class="icon">
+            Lock
+          </button>
+          <button type="button" class="toolbar-btn" id="prompts-btn" title="Writing Prompts">
+            💡 Prompts
+          </button>
+          <button type="button" class="toolbar-btn" id="duplicate-entry-btn" title="Duplicate Entry">
+            📋 Duplicate
+          </button>
+          <button type="button" class="toolbar-btn" id="markdown-toggle-btn" title="Toggle Markdown">
+            📝 Markdown
+          </button>
+        </div>
+        
+        <!-- Tags Input -->
+        <div class="tags-container" id="tags-container" style="display: none;">
+          <span class="tags-label">Tags:</span>
+          <div class="tags-input-wrapper">
+            <input type="text" id="tags-input" placeholder="Add tags (press Enter to add)">
+            <div class="tags-display" id="tags-display"></div>
+          </div>
+        </div>
+        
+        <!-- Word/Character Count -->
+        <div class="word-count" id="word-count">
+          <span id="word-count-text">0 words, 0 characters</span>
+        </div>
+        
+        <div class="editor-wrapper">
+          <div id="journal-content" contenteditable="true" placeholder="Your thoughts..." disabled></div>
+          <div class="markdown-preview" id="markdown-preview" style="display: none;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Templates Modal -->
+  <div id="templates-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Entry Templates</h3>
+        <button id="close-templates-modal" class="close-btn">
+          <img src="icons/close-circle-outline.svg" alt="Close" class="icon">
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="template-grid">
+          <div class="template-item" data-template="daily-reflection">
+            <h4>Daily Reflection</h4>
+            <p>Reflect on your day, thoughts, and experiences.</p>
+          </div>
+          <div class="template-item" data-template="gratitude">
+            <h4>Gratitude</h4>
+            <p>Write about things you're grateful for today.</p>
+          </div>
+          <div class="template-item" data-template="goals">
+            <h4>Goals</h4>
+            <p>Set and track your daily or weekly goals.</p>
+          </div>
+          <div class="template-item" data-template="mood">
+            <h4>Mood Check</h4>
+            <p>Track your emotional state and feelings.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Settings</h3>
+        <button id="close-settings-modal" class="close-btn">
+          <img src="icons/close-circle-outline.svg" alt="Close" class="icon">
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-section">
+          <h4>Appearance</h4>
+          <div class="setting-item">
+            <label for="theme-select">Theme:</label>
+            <select id="theme-select">
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label for="font-selector">Writing Font:</label>
+            <select id="font-selector">
+              <option value="system">System Default</option>
+              <option value="serif">Serif (Times New Roman)</option>
+              <option value="sans-serif">Sans Serif (Arial)</option>
+              <option value="monospace">Monospace (Courier)</option>
+              <option value="Georgia">Georgia</option>
+              <option value="Verdana">Verdana</option>
+              <option value="Helvetica">Helvetica</option>
+              <option value="Palatino">Palatino</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="settings-section">
+          <h4>Writing</h4>
+          <div class="setting-item">
+            <label for="auto-save-interval">Auto-save interval (seconds):</label>
+            <input type="number" id="auto-save-interval" min="1" max="60" value="1">
+          </div>
+        </div>
+        
+        <div class="settings-section">
+          <h4>Security</h4>
+          <div class="setting-item">
+            <button id="setup-pin-btn" class="action-btn">
+              <img src="icons/lock.svg" alt="Setup PIN" class="icon">
+              Setup PIN Protection
+            </button>
+            <button id="change-pin-btn" class="action-btn" style="display: none;">
+              <img src="icons/unlock.svg" alt="Change PIN" class="icon">
+              Change PIN
+            </button>
+          </div>
+        </div>
+        
+        <div class="settings-section">
+          <h4>Data</h4>
+          <div class="setting-item">
+            <button id="export-data-btn" class="action-btn">
+              <img src="icons/export.svg" alt="Export" class="icon">
+              Export Journal Data
+            </button>
+            <button id="import-data-btn" class="action-btn">
+              <img src="icons/import.svg" alt="Import" class="icon">
+              Import Journal Data
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- PIN Setup Modal -->
+  <div id="pin-setup-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Setup PIN Protection</h3>
+        <button id="close-pin-setup-modal" class="close-btn">
+          <img src="icons/close-circle-outline.svg" alt="Close" class="icon">
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="pin-setup-container">
+          <p>Create a 4-digit PIN to protect sensitive entries:</p>
+          <div class="pin-input-container">
+            <input type="password" id="pin-input" maxlength="4" placeholder="Enter 4-digit PIN">
+            <input type="password" id="pin-confirm" maxlength="4" placeholder="Confirm PIN">
+          </div>
+          <div class="pin-actions">
+            <button id="save-pin-btn" class="action-btn">Save PIN</button>
+            <button id="cancel-pin-setup-btn" class="action-btn secondary">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- PIN Entry Modal -->
+  <div id="pin-entry-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Enter PIN</h3>
+        <button id="close-pin-entry-modal" class="close-btn">
+          <img src="icons/close-circle-outline.svg" alt="Close" class="icon">
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="pin-entry-container">
+          <p>Enter your PIN to unlock this entry:</p>
+          <div class="pin-input-container">
+            <input type="password" id="pin-entry-input" maxlength="4" placeholder="Enter PIN">
+          </div>
+          <div class="pin-actions">
+            <button id="unlock-entry-btn" class="action-btn">Unlock</button>
+            <button id="cancel-pin-entry-btn" class="action-btn secondary">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Writing Prompts Modal -->
+  <div id="prompts-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Writing Prompts</h3>
+        <button id="close-prompts-modal" class="close-btn">
+          <img src="icons/close-circle-outline.svg" alt="Close" class="icon">
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="prompts-container">
+          <p>Need inspiration? Try one of these writing prompts:</p>
+          <div class="prompts-grid" id="prompts-grid">
+            <!-- Prompts will be dynamically added here -->
+          </div>
+          <div class="prompts-actions">
+            <button id="new-prompt-btn" class="action-btn">Get New Prompt</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Quick Notes Modal -->
+  <div id="quick-notes-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Quick Notes</h3>
+        <button id="close-quick-notes-modal" class="close-btn">
+          <img src="icons/close-circle-outline.svg" alt="Close" class="icon">
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="quick-notes-container">
+          <p>Jot down quick thoughts without creating a full entry:</p>
+          <textarea id="quick-note-input" placeholder="Type your quick note here..." rows="4"></textarea>
+          <div class="quick-notes-actions">
+            <button id="save-quick-note-btn" class="action-btn">Save Note</button>
+            <button id="cancel-quick-note-btn" class="action-btn secondary">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Manage Journals Modal -->
+  <div id="manage-journals-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Manage Journals</h3>
+        <button id="close-manage-journals-modal" class="close-btn">
+          <img src="icons/close-circle-outline.svg" alt="Close" class="icon">
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="manage-journals-container">
+          <div class="journals-list" id="journals-list">
+            <!-- Journals will be dynamically added here -->
+          </div>
+          <div class="add-journal-section">
+            <h4>Create New Journal</h4>
+            <div class="add-journal-form">
+              <input type="text" id="new-journal-name" placeholder="Journal name (e.g., Work, Travel, Personal)">
+              <button id="create-journal-btn" class="action-btn">Create Journal</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

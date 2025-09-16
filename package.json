@@ -4,8 +4,8 @@
   "description": "An Electron-based offline journal application",
   "main": "main.cjs",
   "scripts": {
-    "start": "electron .",
-    "dev": "electron . --dev",
+    "start": "node api.js && electron .",
+    "dev": "node api.js && electron . --dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
